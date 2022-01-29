@@ -13,6 +13,11 @@ const dashboard = (state = initialState, action) => {
                 ...state,
                 users: payload.users,
             };
+        case "FETCH_AREA_TO_USER_MAPPING":
+            return {
+                ...state,
+                areaToUsersMapping: payload,
+            };
         default:
             return state;
     }

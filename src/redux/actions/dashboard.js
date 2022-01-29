@@ -22,3 +22,21 @@ export const fetchUsers = () => {
         });
     };
 };
+
+export const fetchAreaToUserMapping = () => {
+    return async (dispatch, getState) => {
+        const { dashboard } = getState();
+        const { areas, users } = dashboard;
+        const areaToUsersMapping = {};
+        for (let i = 0; i < areas.features.length; i++) {
+            areaToUsersMapping[areas.features[i].properties.area_id] = [];
+        }
+        for (let i = 0; i < users.length; i++) {
+            areaToUsersMapping[users[i].area_id].push(users[i]);
+        }
+        return dispatch({
+            type: "FETCH_AREA_TO_USER_MAPPING",
+            payload: areaToUsersMapping,
+        });
+    };
+};
