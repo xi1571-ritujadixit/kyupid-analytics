@@ -1,20 +1,17 @@
-import React, { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
-import './css/App.css';
-import { fetchAreas } from './redux/actions/dashboard';
+import React, { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import "./css/App.css";
+import { fetchAreas, fetchUsers } from "./redux/actions/dashboard";
 
 const App = () => {
-  const dispatch = useDispatch();
+    const dispatch = useDispatch();
 
-  useEffect(() => {
-    dispatch(fetchAreas());
-  }, []);
+    useEffect(() => {
+        dispatch(fetchAreas());
+        dispatch(fetchUsers());
+    }, []);
 
-  return (
-    <div className="App">
-      hello
-    </div>
-  );
-}
+    return <div className="App">hello</div>;
+};
 
 export default App;
