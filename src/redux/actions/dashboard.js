@@ -28,15 +28,17 @@ export const fetchAreaToUserMapping = () => {
         const { dashboard } = getState();
         const { areas, users } = dashboard;
         const areaToUsersMapping = {};
+        let totalProUsers = 0;
         for (let i = 0; i < areas.features.length; i++) {
             areaToUsersMapping[areas.features[i].properties.area_id] = [];
         }
         for (let i = 0; i < users.length; i++) {
             areaToUsersMapping[users[i].area_id].push(users[i]);
+            users[i].is_pro_user && totalProUsers++;
         }
         return dispatch({
             type: "FETCH_AREA_TO_USER_MAPPING",
-            payload: areaToUsersMapping,
+            payload: { areaToUsersMapping, totalProUsers },
         });
     };
 };

@@ -11,7 +11,7 @@ import { MapContainer, TileLayer, Marker, Popup, GeoJSON } from "react-leaflet";
 
 const App = () => {
     const dispatch = useDispatch();
-    const { areas, users, areaToUsersMapping } = useSelector(
+    const { areas, users, areaToUsersMapping, totalProUsers } = useSelector(
         (state) => state.dashboard
     );
     const layerRef = useRef(null);
@@ -56,13 +56,31 @@ const App = () => {
         }
     };
 
+    const getStyle = (feature) => {
+        const { proUsers } = getAreaAnalytics(
+            areaToUsersMapping[feature.properties.area_id]
+        );
+        const percentage = (proUsers / totalProUsers) * 100;
+        let fillColor;
+        if (percentage <= 0.5) {
+            fillColor = "#03045E";
+        } else if (percentage <= 1 && percentage > 0.5) {
+            fillColor = "#0077B6";
+        } else if (percentage <= 1.5 && percentage > 1) {
+            fillColor = "#48CAE4";
+        } else {
+            fillColor = "#CAF0F8";
+        }
+        return { fillColor, color: "black", weight: 0.5, fillOpacity: 1 };
+    };
+
     return (
         <div className="App">
             <MapContainer
                 style={{ width: "100%", height: "100vh" }}
                 center={[12.9716, 77.5946]}
                 maxBoundsViscosity={1.0}
-                zoom={5}
+                zoom={10}
                 attributionControl
                 zoomControl
                 scrollWheelZoom
@@ -80,6 +98,7 @@ const App = () => {
                         data={areas}
                         ref={layerRef}
                         onEachFeature={onEachFeature}
+                        style={(feature) => getStyle(feature)}
                     />
                 )}
             </MapContainer>
