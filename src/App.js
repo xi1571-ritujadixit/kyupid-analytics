@@ -1,107 +1,22 @@
-import React, { useEffect, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React from "react";
 import "./css/App.css";
 import "leaflet/dist/leaflet.css";
-import {
-    fetchAreas,
-    fetchUsers,
-    fetchAreaToUserMapping,
-} from "./redux/actions/dashboard";
-import { MapContainer, TileLayer, Marker, Popup, GeoJSON } from "react-leaflet";
+import Map from "./components/Map";
+import useDashboardState from "./hooks/dashboard";
 
 const App = () => {
-    const dispatch = useDispatch();
-    const { areas, users, areaToUsersMapping, totalProUsers } = useSelector(
-        (state) => state.dashboard
-    );
-    const layerRef = useRef(null);
-
-    useEffect(() => {
-        dispatch(fetchAreas());
-        dispatch(fetchUsers());
-    }, []);
-
-    useEffect(() => {
-        if (areas && users) {
-            dispatch(fetchAreaToUserMapping());
-        }
-    }, [areas, users]);
-
-    const getAreaAnalytics = (users) => {
-        let proUsers = 0;
-        let maleUsers = 0;
-        for (let i = 0; i < users.length; i++) {
-            if (users[i].is_pro_user) {
-                proUsers++;
-            }
-            if (users[i].gender.toUpperCase() === "M") {
-                maleUsers++;
-            }
-        }
-        const femaleUsers = users.length - maleUsers;
-        return { proUsers, maleUsers, femaleUsers };
-    };
-
-    const onEachFeature = (feature, layer) => {
-        if (feature.properties) {
-            const { name, area_id } = feature.properties;
-            const { proUsers, maleUsers, femaleUsers } = getAreaAnalytics(
-                areaToUsersMapping[area_id]
-            );
-            layer
-                .bindPopup(
-                    `${name} Pro Users - ${proUsers} Male Users - ${maleUsers} Female Users - ${femaleUsers} Total Users - ${areaToUsersMapping[area_id].length}`
-                )
-                .openPopup();
-        }
-    };
-
-    const getStyle = (feature) => {
-        const { proUsers } = getAreaAnalytics(
-            areaToUsersMapping[feature.properties.area_id]
-        );
-        const percentage = (proUsers / totalProUsers) * 100;
-        let fillColor;
-        if (percentage <= 0.5) {
-            fillColor = "#03045E";
-        } else if (percentage <= 1 && percentage > 0.5) {
-            fillColor = "#0077B6";
-        } else if (percentage <= 1.5 && percentage > 1) {
-            fillColor = "#48CAE4";
-        } else {
-            fillColor = "#CAF0F8";
-        }
-        return { fillColor, color: "black", weight: 0.5, fillOpacity: 1 };
-    };
+    const { areaToUsersMapping, areas, layerRef, onEachFeature, getStyle } =
+        useDashboardState();
 
     return (
         <div className="App">
-            <MapContainer
-                style={{ width: "100%", height: "100vh" }}
-                center={[12.9716, 77.5946]}
-                maxBoundsViscosity={1.0}
-                zoom={10}
-                attributionControl
-                zoomControl
-                scrollWheelZoom
-                dragging
-                animate
-                preferCanvas
-                easeLinearity={0.35}
-            >
-                <TileLayer
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-                {areaToUsersMapping && (
-                    <GeoJSON
-                        data={areas}
-                        ref={layerRef}
-                        onEachFeature={onEachFeature}
-                        style={(feature) => getStyle(feature)}
-                    />
-                )}
-            </MapContainer>
+            <Map
+                areaToUsersMapping={areaToUsersMapping}
+                areas={areas}
+                layerRef={layerRef}
+                onEachFeature={onEachFeature}
+                getStyle={getStyle}
+            />
         </div>
     );
 };
