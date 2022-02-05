@@ -17,13 +17,13 @@ const useDashboardState = () => {
     useEffect(() => {
         dispatch(fetchAreas());
         dispatch(fetchUsers());
-    }, []);
+    }, [dispatch]);
 
     useEffect(() => {
         if (areas && users) {
             dispatch(fetchAreaToUserMapping());
         }
-    }, [areas, users]);
+    }, [areas, users, dispatch]);
 
     const getAreaAnalytics = (users) => {
         let proUsers = 0;
